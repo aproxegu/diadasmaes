@@ -206,7 +206,23 @@
 
 </div></div>
 <script>
-const STORAGE_KEY = 'aproxegu_leads_maes';
+const SUPABASE_URL = 'https://tnkbarzxwbsldxeshrfo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRua2Jhcnp4d2JzbGR4ZXNocmZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwODQ1NTMsImV4cCI6MjA5MjY2MDU1M30.ePMSZTZU5kBzcYgWtxVpqJ9ff0tb4DI-u0nO4tI-Se8';
+
+async function saveLead(lead) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(lead)
+    });
+  } catch(e) { console.error('Erro ao salvar lead:', e); }
+}
 const WAPP_NUMBER = '5511987316577';
 
 const questions = [
@@ -390,11 +406,18 @@ function validateLead() {
   return ok ? { name, phone, email } : null;
 }
 
-function submitLead() {
+async function submitLead() {
   const data = validateLead(); if (!data) return;
   leadName = data.name;
-  const lead = { name: data.name, phone: data.phone, email: data.email, profile: profiles[currentProfile].name, profileKey: currentProfile, campanha: 'Dia das Mães', date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) };
-  try { const ex = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); ex.unshift(lead); localStorage.setItem(STORAGE_KEY, JSON.stringify(ex)); } catch (e) {}
+  const lead = {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    profile: profiles[currentProfile].name,
+    profile_key: currentProfile,
+    campaign: 'Dia das Mães'
+  };
+  await saveLead(lead);
   runLoading();
 }
 
